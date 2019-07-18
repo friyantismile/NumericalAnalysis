@@ -1,5 +1,5 @@
 @echo off
-set "VIRTUAL_ENV=D:\PythonProject\numericalanalysisassignment\assignment_env"
+set "VIRTUAL_ENV=D:\MasteralLife\NumericalAnalysis\assignment_env"
 
 if defined _OLD_VIRTUAL_PROMPT (
     set "PROMPT=%_OLD_VIRTUAL_PROMPT%"
