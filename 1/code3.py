@@ -17,7 +17,7 @@ plt.xlabel('Linear x axis')
 plt.subplot(312)
 plt.loglog(x,y,"+-g")
 plt.xscale('symlog')
-plt.yscale('symlog')s
+plt.yscale('symlog')
 
 
 plt.legend()
