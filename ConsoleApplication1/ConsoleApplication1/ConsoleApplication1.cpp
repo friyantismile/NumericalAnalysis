@@ -5,22 +5,23 @@
 #include "pch.h"
 #include <iomanip>
 #include <iostream>
+#define _USE_MATH_DEFINES
 #include <cmath>
 #include <limits>
-#include <Eigen/Dense>
-#include <Unsupported/Eigen/MPRealSupport>
-#include "Timer.h"
+#include <Eigen/dense>
+
+
 
 extern "C" {
 	int daxpy_(const int* n, const double* da, const double* dx, const int* incx, double* dy, const int* incy);
 }
 
-template<typename Scalar>
-void eigenTypeDemo(unsigned int dim) {
-	using dynMat_t = Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic>;
+ 
+Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> eigenTypeDemo(unsigned int dim) {
+	using dynMat_t = Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>;
 
-	using dynColVec_t = Eigen::Matrix<Scalar, Eigen::Dynamic, 1>;
-	using dynRowVec_t = Eigen::Matrix<Scalar, 1, Eigen::Dynamic>;
+	using dynColVec_t = Eigen::Matrix<double, Eigen::Dynamic, 1>;
+	using dynRowVec_t = Eigen::Matrix<double, 1, Eigen::Dynamic>;
 
 	using index_t = typename dynMat_t::Index;
 	using entry_t = typename dynMat_t::Scalar;
@@ -29,18 +30,50 @@ void eigenTypeDemo(unsigned int dim) {
 	dynRowVec_t rowvex(dim);
 
 	for (index_t i = 0; i < colvec.size(); ++i) {
-		colvec(i) = (Scalar)i;
+		colvec(i) = (double)i;
 	}
 
 	for (index_t i = 0; i < rowvex.size(); ++i) {
-		rowvex(i) = (Scalar)1 / (i + 1);
+		rowvex(i) = (double)1 / (i + 1);
 	}
 
-	colvec[0] = (Scalar)3.14; rowvex(dim - 1) = (Scalar)2.718;
+	colvec[0] = (double)3.14; rowvex(dim - 1) = (double)2.718;
 
 	dynMat_t vecprod = colvec * rowvex;
 	const int nrows = vecprod.rows();
 	const int ncols = vecprod.cols();
+
+	//display content of the matrix
+	return vecprod;
+}
+
+void initializeMatrix(int cols = 5, int rows = 6) {
+	Eigen::MatrixXd A(cols, rows);
+	Eigen::MatrixXd B = Eigen::MatrixXd::Zero(cols, rows);
+	Eigen::MatrixXd C = Eigen::MatrixXd::Ones(cols, rows);
+	Eigen::MatrixXd D = Eigen::MatrixXd::Constant(cols, rows, 7.5);
+	Eigen::MatrixXd E = Eigen::MatrixXd::Random(cols, rows);
+	Eigen::MatrixXd I = Eigen::MatrixXd::Identity(cols, rows);
+
+	std::cout << "size of A = (" << B.rows() << "," << B.cols() << ")" << std::endl;
+
+	std::cout << std::endl << "Matrix A" << std::endl;
+	std::cout << A;
+
+	std::cout << std::endl << "Matrix B" << std::endl;
+	std::cout << B;
+
+	std::cout << std::endl << "Matrix C" << std::endl;
+	std::cout << C;
+
+	std::cout << std::endl << "Matrix D" << std::endl;
+	std::cout << D;
+
+	std::cout << std::endl << "Matrix E" << std::endl;
+	std::cout << E;
+
+	std::cout << std::endl << "Matrix I" << std::endl;
+	std::cout << I;
 }
 
 void matArray(int nrows, int ncols) {
@@ -80,17 +113,6 @@ void storageOrder(int nrows = 6, int ncols = 7) {
 	std::cout << std::endl;
 }
 
-void initializeMatrix(int cols=5, int rows=6) {
-	Eigen::MatrixXd A(cols, rows);
-	Eigen::MatrixXd B = Eigen::MatrixXd::Zero(cols, rows);
-	Eigen::MatrixXd C = Eigen::MatrixXd::Ones(cols, rows);
-	Eigen::MatrixXd D = Eigen::MatrixXd::Constant(cols, rows, 7.5);
-	Eigen::MatrixXd E = Eigen::MatrixXd::Random(cols, rows);
-	Eigen::MatrixXd I = Eigen::MatrixXd::Identity(cols, rows);
-
-	std::cout << "size of A = (" << B.rows() << "," << B.cols() << ")" << std::endl;
-}
-
 template<typename MatType>
 void blockAccess(Eigen::MatrixBase<MatType> &M) {
 	using index_t = typename Eigen::MatrixBase<MatType>::Index;
@@ -123,23 +145,23 @@ void blockAccess(Eigen::MatrixBase<MatType> &M) {
 }
 
 template<typename MatType>
-void reshapeTest(Eigen::MatrixBase<MatType> &M) {
-	using index_t = typename Eigen::MatrixBase<MatType>::Index;
-	using entry_t = typename Eigen::MatrixBase<MatType>::Scalar;
+void reshapeTest(MatType &M) {
+	using index_t = typename MatType::Index;
+	using entry_t = typename MatType::Scalar;
 	const index_t nsize(M.size());
 
 	if ((nsize % 2) == 0) {
 		entry_t *Mdat = M.data();
 		Eigen::Map<Eigen::Matrix<entry_t, Eigen::Dynamic, Eigen::Dynamic>> R(Mdat, 2, nsize / 2);
-		Eigen::Matrix<entry_t, Eigen::Dynamic, Eigen::Dynamic> S =
-			Eigen::Map<Eigen::Matrix<entry_t, Eigen::Dynamic, Eigen::Dynamic>>(Mdat, 2, nsize / 2);
+		/*Eigen::Matrix<entry_t, Eigen::Dynamic, Eigen::Dynamic> S =
+			Eigen::Map<Eigen::Matrix<entry_t, Eigen::Dynamic, Eigen::Dynamic>>(Mdat, 2, nsize / 2);*/
 
 		std::cout << "Matrix M = " << std::endl << M << std::endl;
 		std::cout << "Reshape to " << R.rows() << 'x' << R.cols() << ' = ' << std::endl << R << std::endl;
 
 		R += -1.5;
 		std::cout << "Scaled (!) Matrix M = " << std::endl << M << std::endl;
-		std::cout << "Matrix S = " << std::endl << S << std::endl;
+		//std::cout << "Matrix S = " << std::endl << S << std::endl;
 	}
  }
 
@@ -163,6 +185,10 @@ void blasbasedsaxpy() {
 	std::cout << "y=["; for (size_t i = 0; i < n; i++) std::cout << y[i] << " ";
 	std::cout << "]" << std::endl;
 
+	//Code below commented, it cause 2 errors
+	//1. Error	LNK2019	unresolved external symbol _daxpy_ referenced in function "void __cdecl blasbasedsaxpy(void)" 
+	//2. Unresolved external
+	
 	//daxpy_(&n, &alpha, x, &incx, y, &incy);
 
 	std::cout << "y = " << alpha << "* x + y = ]";
@@ -170,10 +196,10 @@ void blasbasedsaxpy() {
 }
 
 void mmeigenmkl() {
-	int nruns = 3, minExp = 6, maxExp = 13;
+	int nruns = 3, minExp = 2, maxExp = 8;
 	Eigen::MatrixXd timing(maxExp - minExp + 1, 2);
 	for (int p = 0; p <= maxExp - minExp; ++p) {
-		Timer t1;
+		//Timer t1;
 		int n = std::pow(2, minExp + p);
 		Eigen::MatrixXd A = Eigen::MatrixXd::Random(n, n);
 		Eigen::MatrixXd B = Eigen::MatrixXd::Random(n, n);
@@ -181,9 +207,9 @@ void mmeigenmkl() {
 
 		for (int i = 0; i < nruns; ++i)
 		{
-			t1.Start();
+			//t1.Start();
 			C = A * B;
-			t1.Stop();
+			//t1.Stop();
 		}
 		timing(p, 0) = n; //timing(p, 1) = t1.min();
 	}
@@ -199,7 +225,7 @@ Eigen::MatrixXd dottenstiming() {
 	Eigen::MatrixXd timings(maxExp - minExp + 1, 3);
 	for (int i = 0; i < maxExp - minExp; ++i)
 	{
-		Timer tfool, tsmart;
+		//Timer tfool, tsmart;
 		const int n = std::pow(2, minExp + i);
 		Eigen::VectorXd a = Eigen::VectorXd::LinSpaced(n,1,n);
 		Eigen::VectorXd b = Eigen::VectorXd::LinSpaced(n, 1, n).reverse();
@@ -207,8 +233,12 @@ Eigen::MatrixXd dottenstiming() {
 
 		for (int j = 0; j < nruns; ++j)
 		{
-			tfool.Start(); y = (a*b.transpose())*x; tfool.Stop();
-			tsmart.Start(); y = a * b.dot(x); tsmart.Stop();
+			//tfool.Start(); 
+			y = (a*b.transpose())*x; 
+			//tfool.Stop();
+			//tsmart.Start(); 
+			y = a * b.dot(x); 
+			//tsmart.Stop();
 		}
 
 		timings(i, 0) = n;
@@ -249,13 +279,13 @@ template <class Matrix> Matrix gramschmidt(const  Matrix& A) {
 void gsroundoff(Eigen::MatrixXd& A) {
 	Eigen::MatrixXd Q = gramschmidt(A);
 	std::cout << std::setprecision(4) << std::fixed << "I = " << std::endl << Q.transpose()*Q << std::endl;
-	//HouseholderQR<Eigen::MatrixXd> qr(A.rows(), A.cols());
-	//qr.compute(A); Eigen::MatrixXd Q1 = qr.householderQ();
+	Eigen::HouseholderQR<Eigen::MatrixXd> qr(A.rows(), A.cols());
+	qr.compute(A); Eigen::MatrixXd Q1 = qr.householderQ();
 
-	//std::cout << "I1 = " << std::endl << Q1.transpose()*Q1 << std:endl;
+	std::cout << "I1 = " << std::endl << Q1.transpose()*Q1 << std::endl;
 
-	//Eigen::MatrixXd R1 = qr.matrixQR().triangularView<Upper>();
-	//std::cout << std::scientific << "A-Q1*R1 = " << std::endl << A - Q1 * R1 << std:endl;
+	Eigen::MatrixXd R1 = qr.matrixQR().triangularView<Eigen::Upper>();
+	std::cout << std::scientific << "A-Q1*R1 = " << std::endl << A - Q1 * R1 << std::endl;
 
 }
 
@@ -290,8 +320,11 @@ void EPS() {
 void overflowunderflow() {
 	std::cout.precision(15);
 	double min = std::numeric_limits<double>::min();
-	double res1 = c * min / 1234567890101112;
-	double res2 = res1 * 1234567890101112/min;
+
+	//M_PI value is 3.14
+	double M_PI = 3.14;
+	double res1 = M_PI * min / 123456789101112;
+	double res2 = res1 * 123456789101112/min;
 	std::cout << res1 << std::endl << res2 << std::endl;
 }
 
@@ -305,6 +338,27 @@ Eigen::Vector2d zerosquadpol(double alpha, double beta) {
 	}
 	return z;
 }
+Eigen::VectorXd zerosquadpolstab(double alpha, double beta) {
+	Eigen::Vector2d z(2);
+	double D = std::pow(alpha, 2) - 4 * beta;
+
+	if (D < 0) throw "no real zeros";
+	else {
+		double wD = std::sqrt(D);
+
+		if (alpha >= 0) {
+			double t = 0.5*(-alpha - wD);
+			z << t, beta / t;
+		}
+		else {
+			double t = 0.5*(-alpha + wD);
+			z << beta / t, t;
+
+		}
+	}
+	return z;
+
+}
 
 void compzeros() {
 	int n = 100;
@@ -314,7 +368,7 @@ void compzeros() {
 		double alpha = -(gamma(i) + 1. / gamma(i));
 		double beta = 1.;
 		Eigen::Vector2d z1 = zerosquadpol(alpha, beta);
-		Eigen::Vector2d z1 = zerosquadpolstab(alpha, beta);
+		Eigen::Vector2d z2 = zerosquadpolstab(alpha, beta);
 	}
 
 	
@@ -347,58 +401,34 @@ void numericaldifferentiation() {
 	}*/
 }
 
-Eigen::VectorXd zerosquadpolstab(double alpha, double beta) {
-	Eigen::Vector2d z(2);
-	double D = std::pow(alpha, 2) - 4 * beta;
-
-	if (D < 0) throw "no real zeros";
-	else {
-		double wD = std::sqrt(D);
-		 
-		if (alpha >= 0) {
-			double t = 0.5*(-alpha - wD);
-			z << t, beta / t;
-		}
-		else {
-			double t = 0.5*(-alpha + wD);
-			z << beta / t, t;
-			
-		}
-	}
-	return z;
-
-}
-
 Eigen::MatrixXd ApproxPlinstable(double tol = 1e-8, int maxlt = 50) {
-	double s = std::sqrt(3) / 2.; double An = 3.*s;
+	double s = std::sqrt(3) / 2.; double An = 3.*s; double M_PI = 3.14;
 	unsigned int n = 6, it = 0;
 	Eigen::MatrixXd res(maxlt, 4);
 	res(it, 0) = n; res(it, 1) = An;
-	//res(it, 2) = An - M_PI; res(it, 3) = 3;
+	res(it, 2) = An - M_PI; res(it, 3) = 3;
 	while (it < maxlt && s > tol) {
 		s = std::sqrt((1.- std::sqrt(1.-s*s))/2.);
 		n *= 2; An = n / 3.*s;
 		++it;
 		res(it, 0) = n; res(it, 1) = An;
-		//res(it, 2) = An - M_PI; res(it, 3)=s;
-
+		res(it, 2) = An - M_PI; res(it, 3)=s;
 	}
 	return res.topRows(it);
 }
 
 Eigen::MatrixXd apprpistable(double tol = 1e-8, int maxlt = 50) {
-	double s = std::sqrt(3) / 2.; double An = 3.*s;
+	double s = std::sqrt(3) / 2.; double An = 3.*s; double M_PI = 3.14;
 	unsigned int n = 6, it = 0;
 	Eigen::MatrixXd res(maxlt, 4);
 	res(it, 0) = n; res(it, 1) = An;
-	//res(it, 2) = An - M_PI; res(it, 3) = 3;
+	res(it, 2) = An - M_PI; res(it, 3) = 3;
 	while (it < maxlt && s > tol) {
 		s = s/ std::sqrt(2*(1+ std::sqrt((1+s)*(1-s))));
 		n *= 2; An = n / 2.*s;
 		++it;
 		res(it, 0) = n; res(it, 1) = An;
-		//res(it, 2) = An - M_PI; res(it, 3)=s;
-
+		res(it, 2) = An - M_PI; res(it, 3)=s;
 	}
 	return res.topRows(it);
 }
@@ -416,12 +446,8 @@ double expeval(double x, double tol=1e-8) {
 
 int main()
 {
-	
-	// eigenTypeDemo<double>((2)); 
-	//matArray(3, 3);
-	//storageOrder();
-
-
+	Eigen::Matrix<double,6, 6> mcm(6, 6);
+	reshapeTest(mcm);
 	return 0;
 }
 

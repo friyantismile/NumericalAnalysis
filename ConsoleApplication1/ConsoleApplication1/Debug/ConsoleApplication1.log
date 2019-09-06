@@ -1,2 +1,22 @@
 ﻿  ConsoleApplication1.cpp
-  ConsoleApplication1.vcxproj -> C:\Users\Yants\Documents\Visual Studio 2017\Projects\ConsoleApplication1\Debug\ConsoleApplication1.exe
+d:\masterallife\numericalanalysis\consoleapplication1\consoleapplication1\consoleapplication1.cpp(203): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+d:\masterallife\numericalanalysis\consoleapplication1\consoleapplication1\consoleapplication1.cpp(229): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+d:\masterallife\numericalanalysis\consoleapplication1\consoleapplication1\consoleapplication1.cpp(229): warning C4244: 'initializing': conversion from 'double' to 'const int', possible loss of data
+d:\masterallife\numericalanalysis\consoleapplication1\consoleapplication1\consoleapplication1.cpp(410): warning C4018: '<': signed/unsigned mismatch
+d:\masterallife\numericalanalysis\consoleapplication1\consoleapplication1\consoleapplication1.cpp(426): warning C4018: '<': signed/unsigned mismatch
+d:\masterallife\numericalanalysis\consoleapplication1\consoleapplication1\consoleapplication1.cpp(265): warning C4018: '<': signed/unsigned mismatch
+  d:\masterallife\numericalanalysis\consoleapplication1\consoleapplication1\consoleapplication1.cpp(280): note: see reference to function template instantiation 'Matrix gramschmidt<Eigen::MatrixXd>(const Matrix &)' being compiled
+          with
+          [
+              Matrix=Eigen::MatrixXd
+          ]
+d:\masterallife\numericalanalysis\consoleapplication1\consoleapplication1\consoleapplication1.cpp(162): error C2676: binary '+=': 'Eigen::Map<Derived,0,Eigen::Stride<0,0>>' does not define this operator or a conversion to a type acceptable to the predefined operator
+          with
+          [
+              Derived=Eigen::Matrix<double,-1,-1,0,-1,-1>
+          ]
+  d:\masterallife\numericalanalysis\consoleapplication1\consoleapplication1\consoleapplication1.cpp(450): note: see reference to function template instantiation 'void reshapeTest<Eigen::Matrix<double,6,6,0,6,6>>(MatType &)' being compiled
+          with
+          [
+              MatType=Eigen::Matrix<double,6,6,0,6,6>
+          ]

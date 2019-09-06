@@ -1,4 +1,5 @@
 import numpy as np
+from matplotlib import pyplot as plt
 
 def gramsschimidt(A):
     _, k = A.shape
@@ -10,3 +11,13 @@ def gramsschimidt(A):
             break
         Q = np.column_stack([Q, q / nq])
     return Q
+
+for b in 2**np.mgrid[2:5]:
+    A = np.random.normal(size=(b, b))
+   
+gram = gramsschimidt(A)
+
+plt.figure()
+plt.plot(gram, '+', label='gramsschimidt')
+plt.legend(loc='best')
+plt.show()

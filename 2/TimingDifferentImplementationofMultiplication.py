@@ -33,7 +33,7 @@ def mm_blas3(A, B, C):
 def main():
     nruns = 3
     res = []
-    for n in 2**np.mgrid[2:11]:
+    for n in 2**np.mgrid[2:9]:
         print('matrix size n = {}'.format(n))
         A =  np.random.uniform(size=(n, n))
         B =  np.random.uniform(size=(n, n))
@@ -52,6 +52,7 @@ def main():
     plt.loglog(ns, tblas1s, '+', label='dot product implementation')
     plt.loglog(ns, tblas2s, '*', label='matrix-vector implementation')
     plt.loglog(ns, tblas3s, '^', label='BLAS Gemm np.dot')
+    plt.legend()
     plt.show()
 
 if __name__ == '__main__':
